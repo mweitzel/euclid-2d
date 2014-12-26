@@ -1,6 +1,7 @@
 ### Dependencies
 
-Follow installation from the READMEs for the following
+Depending on what you already have on your system,
+you may need to follow the READMEs for the following:
 
 - [glfw3](https://github.com/nilium/ruby-glfw3)
 - [opengl-core](https://github.com/nilium/opengl-core)
