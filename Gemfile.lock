@@ -1,0 +1,10 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    glfw3 (0.4.8)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  glfw3
