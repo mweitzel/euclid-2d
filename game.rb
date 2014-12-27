@@ -1,4 +1,4 @@
-require_relative 'core'
+require_relative 'core/core'
 
 class RandomPoint < Core::GameObject
   @shader = :point
@@ -8,11 +8,9 @@ class RandomPoint < Core::GameObject
   end
 end
 
-game = Core::Game.new 'sup'
-
-3.times { game.remove_point }
+game = Core::Game.new
 
 game.start do
-  3.times { game.remove_point }
-  3.times { game.add_point RandomPoint.new }
+  300.times { game.pop_go }
+  300.times { game.push_go RandomPoint.new }
 end
