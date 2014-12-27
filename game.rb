@@ -69,7 +69,7 @@ end
 def add_point
   @current_point_count ||= 0
   vert = @vertices[@current_point_count]
-  vert.x, vert.y = rand, rand
+  vert.x, vert.y = rand * 2 - 1, rand * 2 - 1
   @current_point_count += 1
 end
 
