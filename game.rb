@@ -1,3 +1,5 @@
+require 'bundler/setup'
+Bundler.require(:default)
 require_relative 'core/core'
 
 class RandomPoint < Core::GameObject

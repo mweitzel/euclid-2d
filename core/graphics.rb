@@ -100,7 +100,11 @@ module Core
 
     def error_check
       error = GL::glGetError()
-      raise "GLError: #{error.to_s(16)}" unless error == GL::GL_NO_ERROR
+      if error != GL::GL_NO_ERROR
+        puts "GLError: #{error.to_s(16)}" 
+        puts caller
+      end
+#      raise "GLError: #{error.to_s(16)}" unless error == GL::GL_NO_ERROR
     end
 
     def configure_gl_version version='3.2'
