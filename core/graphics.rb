@@ -4,6 +4,77 @@ require 'opengl-aux'
 require 'snow-data'
 
 module Core
+  class ObjectTypeBuffer
+    def initialize program
+
+      cstruct = Snow::CStruct.new {
+        float :x
+        float :y
+      }
+
+      @vao = GL::VertexArray.new
+      @vao.bind
+
+      @data = cstruct[10000]
+      buffer
+#glVertexAttribPointer associates with currently bound GL_ARRAY_BUFFER
+#id, vec size, type, normalized, stride, pointer
+      GL::glVertexAttribPointer 0, 2, GL::GL_FLOAT, GL::GL_FALSE, 0, 0
+      GL::glEnableVertexAttribArray 0
+      Core::error_check
+
+      @program = program
+    end
+
+    def buffer
+      @buffers = GL::Buffer.new GL::GL_ARRAY_BUFFER unless @buffers
+      @buffers.bind
+      GL::glBufferData GL::GL_ARRAY_BUFFER, @data.bytesize, @data.address, GL::GL_DYNAMIC_DRAW
+      Core::error_check
+    end
+
+    def draw
+      buffer
+      @program.use
+      @vao.bind
+      GL::glDrawArrays GL::GL_POINTS, 0, @current_point_count
+    end
+
+    def add_object type_data
+      @current_point_count ||= 0
+      v_data = @data[@current_point_count]
+      v_data.x, v_data.y = type_data
+      @current_point_count += 1
+    end
+
+    def remove_object idx=nil
+      @data[idx ||= @current_point_count ||= 0] = @data[@current_point_count ||= 0]
+      return unless @current_point_count > 0
+      @current_point_count -= 1
+    end
+  end
+
+=begin example other type based off of ObjectTypeBuffer
+  class PointTypeBuffer < ObjectTypeBuffer
+    def initialize program
+      cstruct = Snow::CStruct.new {
+        float :x
+        float :y
+      }
+      @vao = GL::VertexArray.new
+      @vao.bind
+
+      @data = cstruct[10000]
+      buffer
+      GL::glVertexAttribPointer 0, 2, GL::GL_FLOAT, GL::GL_FALSE, 0, 0
+      GL::glEnableVertexAttribArray 0
+      Core::error_check
+
+      @program = program
+    end
+  end
+=end
+
   class Graphics
     attr_reader :window, :vertices
 
@@ -13,25 +84,36 @@ module Core
       @window = Glfw::Window.new(800, 600, title)
       @window.make_context_current
 
-      vaos = GL::VertexArray.new
-      vaos.bind
-      error_check
+      @objecttypes = {}
 
       vertex_shader = compile_shader GL::GL_VERTEX_SHADER, "core/shaders/geometry.vert"
       geometry_shader = compile_shader GL::GL_GEOMETRY_SHADER, "core/shaders/geometry.geom"
       fragment_shader = compile_shader GL::GL_FRAGMENT_SHADER, "core/shaders/passthru.frag"
-      error_check
+      Core::error_check
 
       program = create_shader_program vertex_shader, geometry_shader, fragment_shader
-      program.use
-      error_check
+      @objecttypes[:otb] = ObjectTypeBuffer.new(program)
+      Core::error_check
 
-      prep_points
-      buffer
+      vertex_shader = compile_shader GL::GL_VERTEX_SHADER, "core/shaders/point.vert"
+      fragment_shader = compile_shader GL::GL_FRAGMENT_SHADER, "core/shaders/passthru.frag"
+      Core::error_check
 
-      GL::glVertexAttribPointer 0, 2, GL::GL_FLOAT, GL::GL_FALSE, 0, 0
-      GL::glEnableVertexAttribArray 0
-      error_check
+      program = create_shader_program vertex_shader, fragment_shader
+      @objecttypes[:ptb] = ObjectTypeBuffer.new(program)
+      Core::error_check
+    end
+
+    def [](key)
+      @objecttypes[key]
+    end
+
+    def add_object sym, gl_data
+      @objecttypes[sym].add_object(gl_data)
+    end
+
+    def remove_object sym, idx=nil
+      @objecttypes[sym].remove_object(idx)
     end
 
     def wait_events
@@ -43,43 +125,13 @@ module Core
     end
 
     def draw
-      buffer
-
-      GL::glDrawArrays GL::GL_POINTS, 0, @current_point_count
+      @objecttypes.each { |key, type| type.draw }
       @window.swap_buffers
-    end
-
-    def add_point gl_data
-      @current_point_count ||= 0
-      vert = vertices[@current_point_count]
-      vert.x, vert.y = gl_data
-      @current_point_count += 1
-    end
-
-    def remove_point
-      @current_point_count ||= 0
-      return unless @current_point_count > 0
-      @current_point_count -= 1
     end
 
     def terminate
       window.destroy
       Glfw.terminate
-    end
-
-    def prep_points
-      vertex2 = Snow::CStruct.new {
-        float :x
-        float :y
-      }
-      @vertices = vertex2[10000]
-    end
-
-    def buffer
-      @buffers = GL::Buffer.new GL::GL_ARRAY_BUFFER unless @buffers
-      @buffers.bind
-      GL::glBufferData GL::GL_ARRAY_BUFFER, @vertices.bytesize, @vertices.address, GL::GL_STATIC_DRAW
-      error_check
     end
 
     def create_shader_program(*shaders)
@@ -98,14 +150,6 @@ module Core
       return shader
     end
 
-    def error_check
-      error = GL::glGetError()
-      if error != GL::GL_NO_ERROR
-        puts "GLError: #{error.to_s(16)}" 
-        puts caller
-      end
-#      raise "GLError: #{error.to_s(16)}" unless error == GL::GL_NO_ERROR
-    end
 
     def configure_gl_version version='3.2'
       major_version, minor_version = version.split('.').map(&:to_i)
@@ -114,5 +158,14 @@ module Core
       Glfw::Window.window_hint(Glfw::OPENGL_FORWARD_COMPAT, 1)
       Glfw::Window.window_hint(Glfw::OPENGL_PROFILE, Glfw::OPENGL_CORE_PROFILE)
     end
+  end
+
+  def self.error_check
+    error = GL::glGetError()
+    if error != GL::GL_NO_ERROR
+      puts "GLError: #{error.to_s(16)}" 
+      puts caller
+    end
+#     raise "GLError: #{error.to_s(16)}" unless error == GL::GL_NO_ERROR
   end
 end
