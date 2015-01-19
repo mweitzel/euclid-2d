@@ -95,11 +95,12 @@ module Core
       @objecttypes[:otb] = ObjectTypeBuffer.new(program)
       Core::error_check
 
-      vertex_shader = compile_shader GL::GL_VERTEX_SHADER, "core/shaders/point.vert"
+      vertex_shader = compile_shader GL::GL_VERTEX_SHADER, "core/shaders/geometry.vert"
+      geometry_shader = compile_shader GL::GL_GEOMETRY_SHADER, "core/shaders/filled.geom"
       fragment_shader = compile_shader GL::GL_FRAGMENT_SHADER, "core/shaders/passthru.frag"
       Core::error_check
 
-      program = create_shader_program vertex_shader, fragment_shader
+      program = create_shader_program vertex_shader, geometry_shader, fragment_shader
       @objecttypes[:ptb] = ObjectTypeBuffer.new(program)
       Core::error_check
     end
