@@ -34,6 +34,9 @@ module Core
     end
 
     def draw
+      if @current_point_count.nil?
+        return
+      end  
       buffer
       @program.use
       @vao.bind
@@ -54,26 +57,39 @@ module Core
     end
   end
 
-=begin example other type based off of ObjectTypeBuffer
-  class PointTypeBuffer < ObjectTypeBuffer
+  class VarSideTypeBuffer < ObjectTypeBuffer
     def initialize program
       cstruct = Snow::CStruct.new {
         float :x
         float :y
+        float :numsides
       }
       @vao = GL::VertexArray.new
       @vao.bind
 
       @data = cstruct[10000]
       buffer
-      GL::glVertexAttribPointer 0, 2, GL::GL_FLOAT, GL::GL_FALSE, 0, 0
+#Stride is 3*4 because the first attrib/argument is a 2 float vector, but the data is interleaved      
+#So it is 3 floats between the beginning of each data object.
+      GL::glVertexAttribPointer 0, 2, GL::GL_FLOAT, GL::GL_FALSE, 3*4, 0
       GL::glEnableVertexAttribArray 0
+#Pointer is 2*4 because the numsides variable sits after 2 floats (2*sizeof(float))
+      GL::glVertexAttribPointer 1, 1, GL::GL_FLOAT, GL::GL_FALSE, 3*4, 2*4
+      GL::glEnableVertexAttribArray 1
       Core::error_check
 
       @program = program
     end
+
+#buffer method stays the same because all data is still stored and updated in a single buffer array.
+
+    def add_object type_data
+      @current_point_count ||= 0
+      v_data = @data[@current_point_count]
+      v_data.x, v_data.y, v_data.numsides = type_data
+      @current_point_count += 1
+    end
   end
-=end
 
   class Graphics
     attr_reader :window, :vertices
@@ -85,7 +101,7 @@ module Core
       @window.make_context_current
 
       @objecttypes = {}
-
+#empty
       vertex_shader = compile_shader GL::GL_VERTEX_SHADER, "core/shaders/geometry.vert"
       geometry_shader = compile_shader GL::GL_GEOMETRY_SHADER, "core/shaders/geometry.geom"
       fragment_shader = compile_shader GL::GL_FRAGMENT_SHADER, "core/shaders/passthru.frag"
@@ -95,13 +111,24 @@ module Core
       @objecttypes[:otb] = ObjectTypeBuffer.new(program)
       Core::error_check
 
+#filled
       vertex_shader = compile_shader GL::GL_VERTEX_SHADER, "core/shaders/geometry.vert"
       geometry_shader = compile_shader GL::GL_GEOMETRY_SHADER, "core/shaders/filled.geom"
       fragment_shader = compile_shader GL::GL_FRAGMENT_SHADER, "core/shaders/passthru.frag"
       Core::error_check
 
       program = create_shader_program vertex_shader, geometry_shader, fragment_shader
-      @objecttypes[:ptb] = ObjectTypeBuffer.new(program)
+      @objecttypes[:ftb] = ObjectTypeBuffer.new(program)
+      Core::error_check
+
+#variable sides
+      vertex_shader = compile_shader GL::GL_VERTEX_SHADER, "core/shaders/vside.vert"
+      geometry_shader = compile_shader GL::GL_GEOMETRY_SHADER, "core/shaders/vside.geom"
+      fragment_shader = compile_shader GL::GL_FRAGMENT_SHADER, "core/shaders/passthru.frag"
+      Core::error_check
+
+      program = create_shader_program vertex_shader, geometry_shader, fragment_shader
+      @objecttypes[:vstb] = VarSideTypeBuffer.new(program)
       Core::error_check
     end
 
