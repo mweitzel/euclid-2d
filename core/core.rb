@@ -1,5 +1,5 @@
 module Core
 end
 
-require_relative 'graphics'
-require_relative 'game'
+path = File.expand_path '..', __FILE__
+Dir["#{path}/*.rb"].each { |rb| require rb }
