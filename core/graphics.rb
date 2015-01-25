@@ -100,36 +100,41 @@ module Core
       @window = Glfw::Window.new(800, 600, title)
       @window.make_context_current
 
-      @objecttypes = {}
-#empty
-      vertex_shader = compile_shader GL::GL_VERTEX_SHADER, "core/shaders/geometry.vert"
-      geometry_shader = compile_shader GL::GL_GEOMETRY_SHADER, "core/shaders/geometry.geom"
-      fragment_shader = compile_shader GL::GL_FRAGMENT_SHADER, "core/shaders/passthru.frag"
+      @objecttypes = build_render_types
+    end
+
+    def compile_shaders shaders
+      shaders.map { |shader| compile_shader shader }
+    end
+
+    def build_render_types
+      render_type_shader_orders = {
+        otb:  [ "core/shaders/geometry.vert",
+                "core/shaders/geometry.geom",
+                "core/shaders/passthru.frag" ],
+        ftb:  [ "core/shaders/geometry.vert",
+                "core/shaders/filled.geom",
+                "core/shaders/passthru.frag" ],
+        vstb: [ "core/shaders/vside.vert",
+                "core/shaders/vside.geom",
+                "core/shaders/passthru.frag" ],
+      }
+
+      types = {}
+
+#     empty
+      program = create_shader_program( *compile_shaders( render_type_shader_orders[:otb] ) )
+      types[:otb] = ObjectTypeBuffer.new(program)
+#     filled
+      program = create_shader_program( *compile_shaders( render_type_shader_orders[:ftb] ) )
+      types[:ftb] = ObjectTypeBuffer.new(program)
+#     variable sided
+      program = create_shader_program( *compile_shaders( render_type_shader_orders[:vstb] ) )
+      types[:vstb] = VarSideTypeBuffer.new(program)
+
       Core::error_check
 
-      program = create_shader_program vertex_shader, geometry_shader, fragment_shader
-      @objecttypes[:otb] = ObjectTypeBuffer.new(program)
-      Core::error_check
-
-#filled
-      vertex_shader = compile_shader GL::GL_VERTEX_SHADER, "core/shaders/geometry.vert"
-      geometry_shader = compile_shader GL::GL_GEOMETRY_SHADER, "core/shaders/filled.geom"
-      fragment_shader = compile_shader GL::GL_FRAGMENT_SHADER, "core/shaders/passthru.frag"
-      Core::error_check
-
-      program = create_shader_program vertex_shader, geometry_shader, fragment_shader
-      @objecttypes[:ftb] = ObjectTypeBuffer.new(program)
-      Core::error_check
-
-#variable sides
-      vertex_shader = compile_shader GL::GL_VERTEX_SHADER, "core/shaders/vside.vert"
-      geometry_shader = compile_shader GL::GL_GEOMETRY_SHADER, "core/shaders/vside.geom"
-      fragment_shader = compile_shader GL::GL_FRAGMENT_SHADER, "core/shaders/passthru.frag"
-      Core::error_check
-
-      program = create_shader_program vertex_shader, geometry_shader, fragment_shader
-      @objecttypes[:vstb] = VarSideTypeBuffer.new(program)
-      Core::error_check
+      types
     end
 
     def [](key)
@@ -170,11 +175,21 @@ module Core
       return program
     end
 
-    def compile_shader(type, path)
+    def compile_shader(shader_path)
+      ext_to_shader = {
+        vert: GL::GL_VERTEX_SHADER,
+        geom: GL::GL_GEOMETRY_SHADER,
+        frag: GL::GL_FRAGMENT_SHADER,
+      }
+
+      shader_path_extension = shader_path.split('.').last.to_sym
+      type = ext_to_shader[shader_path_extension]
+
       shader = GL::Shader.new type
-      shader.source = File.open(path).read
+      shader.source = File.open(shader_path).read
       shader.compile
-      puts "Compiling #{path}", shader.info_log
+      puts "Compiling #{shader_path}", shader.info_log
+      Core::error_check
       return shader
     end
 
