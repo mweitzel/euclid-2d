@@ -1,3 +1,8 @@
+require 'glfw3'
+require 'opengl-core'
+require 'opengl-aux'
+require 'snow-data'
+
 module Core
   def self.error_check
     error = GL::glGetError()

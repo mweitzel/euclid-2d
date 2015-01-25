@@ -1,8 +1,3 @@
-require 'glfw3'
-require 'opengl-core'
-require 'opengl-aux'
-require 'snow-data'
-
 module Core
   class Graphics
     attr_reader :window, :vertices
