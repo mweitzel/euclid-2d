@@ -5,7 +5,6 @@ module Core
     end
 
     def start &update_block
-      @graphics.buffer
       until quit_game?
         @graphics.wait_events
         @graphics.clear_buffer
@@ -20,11 +19,27 @@ module Core
     end
 
     def push_go game_object
-      @graphics.add_point game_object.get_gl_data
+      @graphics.add_object :otb, game_object.get_gl_data
     end
 
     def pop_go
-      @graphics.remove_point
+      @graphics.remove_object :otb
+    end
+
+    def push_point game_object
+      @graphics.add_object :ftb, game_object.get_gl_data
+    end
+
+    def pop_point
+      @graphics.remove_object :ftb
+    end
+
+    def push_vso game_object
+      @graphics.add_object :vstb, game_object.get_gl_data
+    end
+
+    def pop_vso
+      @graphics.remove_object :vstb
     end
   end
 
