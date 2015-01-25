@@ -1,9 +1,3 @@
-GIT
-  remote: https://github.com/jgleesawn/opengl-core
-  revision: 760ffe831a53bee2ddd8b2ec112b15ee76f3fe9e
-  specs:
-    opengl-core (2.0.1)
-
 GEM
   remote: https://rubygems.org/
   specs:
@@ -11,6 +5,7 @@ GEM
     opengl-aux (1.0.0.pre3)
       opengl-core (~> 2.0)
       snow-data (~> 1.3, >= 1.3.1)
+    opengl-core (2.0.1)
     snow-data (1.3.1)
 
 PLATFORMS
@@ -20,4 +15,4 @@ PLATFORMS
 DEPENDENCIES
   glfw3
   opengl-aux
-  opengl-core!
+  opengl-core
