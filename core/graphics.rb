@@ -106,7 +106,6 @@ module Core
       return shader
     end
 
-
     def configure_gl_version version='3.2'
       major_version, minor_version = version.split('.').map(&:to_i)
       Glfw::Window.window_hint(Glfw::CONTEXT_VERSION_MAJOR, major_version)
@@ -114,14 +113,5 @@ module Core
       Glfw::Window.window_hint(Glfw::OPENGL_FORWARD_COMPAT, 1)
       Glfw::Window.window_hint(Glfw::OPENGL_PROFILE, Glfw::OPENGL_CORE_PROFILE)
     end
-  end
-
-  def self.error_check
-    error = GL::glGetError()
-    if error != GL::GL_NO_ERROR
-      puts "GLError: #{error.to_s(16)}"
-      puts caller
-    end
-#     raise "GLError: #{error.to_s(16)}" unless error == GL::GL_NO_ERROR
   end
 end
