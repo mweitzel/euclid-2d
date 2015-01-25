@@ -16,7 +16,7 @@ class RandomPointSides < Core::GameObject
   def get_gl_data
     [rand * 2 - 1, rand * 2 - 1, 1 + rand * 20]
   end
-end  
+end
 
 game = Core::Game.new
 

@@ -36,7 +36,7 @@ module Core
     def draw
       if @current_point_count.nil?
         return
-      end  
+      end
       buffer
       @program.use
       @vao.bind
@@ -69,7 +69,7 @@ module Core
 
       @data = cstruct[10000]
       buffer
-#Stride is 3*4 because the first attrib/argument is a 2 float vector, but the data is interleaved      
+#Stride is 3*4 because the first attrib/argument is a 2 float vector, but the data is interleaved
 #So it is 3 floats between the beginning of each data object.
       GL::glVertexAttribPointer 0, 2, GL::GL_FLOAT, GL::GL_FALSE, 3*4, 0
       GL::glEnableVertexAttribArray 0
@@ -191,7 +191,7 @@ module Core
   def self.error_check
     error = GL::glGetError()
     if error != GL::GL_NO_ERROR
-      puts "GLError: #{error.to_s(16)}" 
+      puts "GLError: #{error.to_s(16)}"
       puts caller
     end
 #     raise "GLError: #{error.to_s(16)}" unless error == GL::GL_NO_ERROR
