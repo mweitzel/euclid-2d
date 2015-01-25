@@ -16,28 +16,17 @@ module Core
     end
 
     def build_render_types
-      render_type_shader_orders = {
-        otb:  [ "core/shaders/geometry.vert",
-                "core/shaders/geometry.geom",
-                "core/shaders/passthru.frag" ],
-        ftb:  [ "core/shaders/geometry.vert",
-                "core/shaders/filled.geom",
-                "core/shaders/passthru.frag" ],
-        vstb: [ "core/shaders/vside.vert",
-                "core/shaders/vside.geom",
-                "core/shaders/passthru.frag" ],
-      }
 
       types = {}
 
 #     empty
-      program = create_shader_program( *compile_shaders( render_type_shader_orders[:otb] ) )
+      program = create_shader_program( *compile_shaders( RenderTypeShaderOrder['otb'] ) )
       types[:otb] = ObjectTypeBuffer.new(program)
 #     filled
-      program = create_shader_program( *compile_shaders( render_type_shader_orders[:ftb] ) )
+      program = create_shader_program( *compile_shaders( RenderTypeShaderOrder['ftb'] ) )
       types[:ftb] = ObjectTypeBuffer.new(program)
 #     variable sided
-      program = create_shader_program( *compile_shaders( render_type_shader_orders[:vstb] ) )
+      program = create_shader_program( *compile_shaders( RenderTypeShaderOrder['vstb'] ) )
       types[:vstb] = VarSideTypeBuffer.new(program)
 
       Core::error_check

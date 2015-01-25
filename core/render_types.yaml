@@ -1,0 +1,12 @@
+otb:
+      - "core/shaders/geometry.vert"
+      - "core/shaders/geometry.geom"
+      - "core/shaders/passthru.frag"
+ftb:
+      - "core/shaders/geometry.vert"
+      - "core/shaders/filled.geom"
+      - "core/shaders/passthru.frag"
+vstb:
+      - "core/shaders/vside.vert"
+      - "core/shaders/vside.geom"
+      - "core/shaders/passthru.frag"
