@@ -10,21 +10,31 @@ class RandomPoint < Core::GameObject
   end
 end
 
-class RandomPointSides < Core::GameObject
-  @render_type = :vside
+class RandomTriEmpty < RandomPoint
+  @render_type = :otb
+end
+
+class RandomTriFilled < RandomPoint
+  @render_type = :ftb
+end
+
+class RandomPointSides < RandomPoint
+  @render_type = :vstb
 
   def get_gl_data
-    [rand * 2 - 1, rand * 2 - 1, 1 + rand * 20]
+    super + [num_of_sides]
+  end
+
+  def num_of_sides
+    rand(3..10)
   end
 end
 
 game = Core::Game.new
 
 game.start do
-   100.times { game.pop_go }
-   100.times { game.pop_point }
-   100.times { game.pop_vso }
-   100.times { game.push_go RandomPoint.new }
-   100.times { game.push_point RandomPoint.new }
-   100.times { game.push_vso RandomPointSides.new }
+   300.times { game.pop_go }
+   100.times { game.push_go RandomTriEmpty.new }
+   100.times { game.push_go RandomTriFilled.new }
+   100.times { game.push_go RandomPointSides.new }
 end

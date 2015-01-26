@@ -2,6 +2,7 @@ module Core
   class Game
     def initialize
       @graphics = Graphics.new
+      @game_objects = []
     end
 
     def start &update_block
@@ -19,35 +20,26 @@ module Core
     end
 
     def push_go game_object
-      @graphics.add_object :otb, game_object.get_gl_data
+      @game_objects.push game_object
+      @graphics.add_object game_object.render_type, game_object.get_gl_data
     end
 
     def pop_go
-      @graphics.remove_object :otb
-    end
-
-    def push_point game_object
-      @graphics.add_object :ftb, game_object.get_gl_data
-    end
-
-    def pop_point
-      @graphics.remove_object :ftb
-    end
-
-    def push_vso game_object
-      @graphics.add_object :vstb, game_object.get_gl_data
-    end
-
-    def pop_vso
-      @graphics.remove_object :vstb
+      go = @game_objects.pop
+      return unless go
+      @graphics.remove_object go.render_type
     end
   end
 
   class GameObject
-    @shader = nil
+    @render_type = nil
 
     class << self
-      attr_reader :shader
+      attr_reader :render_type
+    end
+
+    def render_type
+      self.class.render_type
     end
 
     @open_gl_index

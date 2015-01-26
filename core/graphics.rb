@@ -28,6 +28,8 @@ module Core
 #     variable sided
       program = create_shader_program( *compile_shaders( RenderTypeShaderOrder['vstb'] ) )
       types[:vstb] = VarSideTypeBuffer.new(program)
+      p types[:vstb].methods
+      puts types[:vstb].methods
 
       Core::error_check
 
@@ -38,8 +40,8 @@ module Core
       @objecttypes[key]
     end
 
-    def add_object sym, gl_data
-      @objecttypes[sym].add_object(gl_data)
+    def add_object render_type, gl_data
+      @objecttypes[render_type].add_object(gl_data)
     end
 
     def remove_object sym, idx=nil
