@@ -5,7 +5,6 @@ require 'opengl-aux'
 require 'snow-data'
 
 module Core
-  RenderTypeShaderOrder = YAML::load_file(File.join(__dir__, 'render_types.yaml'))
   def self.error_check
     error = GL::glGetError()
     if error != GL::GL_NO_ERROR

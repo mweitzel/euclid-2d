@@ -20,16 +20,14 @@ module Core
       types = {}
 
 #     empty
-      program = create_shader_program( *compile_shaders( RenderTypeShaderOrder['otb'] ) )
-      types[:otb] = ObjectTypeBuffer.new(program)
+      program = create_shader_program( *compile_shaders( RenderType::ShaderOrder[:otb] ) )
+      types[:otb] = RenderType::ObjectTypeBuffer.new(program)
 #     filled
-      program = create_shader_program( *compile_shaders( RenderTypeShaderOrder['ftb'] ) )
-      types[:ftb] = ObjectTypeBuffer.new(program)
+      program = create_shader_program( *compile_shaders( RenderType::ShaderOrder[:ftb] ) )
+      types[:ftb] = RenderType::ObjectTypeBuffer.new(program)
 #     variable sided
-      program = create_shader_program( *compile_shaders( RenderTypeShaderOrder['vstb'] ) )
-      types[:vstb] = VarSideTypeBuffer.new(program)
-      p types[:vstb].methods
-      puts types[:vstb].methods
+      program = create_shader_program( *compile_shaders( RenderType::ShaderOrder[:vstb] ) )
+      types[:vstb] = RenderType::VarSideTypeBuffer.new(program)
 
       Core::error_check
 
@@ -41,7 +39,9 @@ module Core
     end
 
     def add_object render_type, gl_data
-      @objecttypes[render_type].add_object(gl_data)
+      object_type = @objecttypes[render_type]
+      raise "no render_type '#{render_type}' available" unless object_type
+      object_type.add_object(gl_data)
     end
 
     def remove_object sym, idx=nil
