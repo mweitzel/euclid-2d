@@ -108,8 +108,8 @@ module Core
       vstb: VarSideTypeBuffer # variable sided
     }
 
-    def self.all
-      Buffer.keys
+    def self.each *args, &block
+      Buffer.keys.each *args, &block
     end
   end
 end

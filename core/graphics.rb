@@ -19,7 +19,7 @@ module Core
 
       types = {}
 
-      RenderType.all.each { |type|
+      RenderType.each { |type|
         program = create_shader_program( *compile_shaders( RenderType::ShaderOrder[type] ) )
         types[type] = RenderType::Buffer[type].new(program)
         Core::error_check
