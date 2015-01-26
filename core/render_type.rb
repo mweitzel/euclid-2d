@@ -101,10 +101,15 @@ module Core
         "core/shaders/vside.geom",
         "core/shaders/passthru.frag" ]
     }
+
     Buffer = {
-      otb: ObjectTypeBuffer,
-      ftb: ObjectTypeBuffer,
-      vstb: VarSideTypeBuffer
+      otb: ObjectTypeBuffer,  # empty
+      ftb: ObjectTypeBuffer,  # filled
+      vstb: VarSideTypeBuffer # variable sided
     }
+
+    def self.all
+      Buffer.keys
+    end
   end
 end

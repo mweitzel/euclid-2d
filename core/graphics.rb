@@ -19,17 +19,11 @@ module Core
 
       types = {}
 
-#     empty
-      program = create_shader_program( *compile_shaders( RenderType::ShaderOrder[:otb] ) )
-      types[:otb] = RenderType::ObjectTypeBuffer.new(program)
-#     filled
-      program = create_shader_program( *compile_shaders( RenderType::ShaderOrder[:ftb] ) )
-      types[:ftb] = RenderType::ObjectTypeBuffer.new(program)
-#     variable sided
-      program = create_shader_program( *compile_shaders( RenderType::ShaderOrder[:vstb] ) )
-      types[:vstb] = RenderType::VarSideTypeBuffer.new(program)
-
-      Core::error_check
+      RenderType.all.each { |type|
+        program = create_shader_program( *compile_shaders( RenderType::ShaderOrder[type] ) )
+        types[type] = RenderType::Buffer[type].new(program)
+        Core::error_check
+      }
 
       types
     end
